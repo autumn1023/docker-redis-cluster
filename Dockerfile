@@ -25,7 +25,8 @@ RUN gem install redis -v 4.0.2
 
 RUN apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby
 
-ARG redis_version=5.0.4
+#ARG redis_version=5.0.4
+ARG redis_version=3.0.7
 
 RUN echo $redis_version > /redis-version.txt
 
@@ -50,8 +51,8 @@ COPY ./generate-supervisor-conf.sh /generate-supervisor-conf.sh
 
 RUN chmod 755 /docker-entrypoint.sh
 
-#EXPOSE 7000 7001 7002 7003 7004 7005 7006 7007 5000 5001 5002
-EXPOSE 14159 14160 14161  14162 14163 14164
+EXPOSE 7000 7001 7002 7003 7004 7005 7006 7007 5000 5001 5002
+#EXPOSE 14159 14160 14161  14162 14163 14164
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["redis-cluster"]
