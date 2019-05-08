@@ -1,0 +1,205 @@
+################################# GLOBAL CONFIG ###################################
+#配置项指定内存大小的时候，必须要带上单位，
+#通常的格式就是 1k 5gb 4m 等：
+#1k  => 1000 bytes
+#1kb => 1024 bytes
+#1m  => 1000000 bytes
+#1mb => 1024*1024 bytes
+#1g  => 1000000000 bytes
+#1gb => 1024*1024*1024 bytes
+#单位是不区分大小写的,如1K 5GB 4M
+
+daemonize yes
+#是否守护进程运行之,默认no.
+
+#pidfile /var/run/redis.pid
+#当redis作为守护进程运行之时,定把pid默认写入/var/run/redis.pid文件之中,可自定义.
+
+tcp-backlog 511  
+#listen队列的长度,Linux内核会默默将此值缩成/proc/sys/net/core/somaxconn,欲改之,则必改两处. 
+
+#server所有有效的网络接口,redis默认监听之客户端连接.
+#欲让它在一个网络接口上监听,则绑定一个IP或者多个IP。
+#示例，多IP空格隔开:
+
+bind 0.0.0.0
+
+timeout 5
+#超时多少s后踢掉，0任之
+
+cluster-require-full-coverage no
+#槽是否全覆盖：cluster-require-full-coverage no。默认是yes，
+#只要有结点宕机导致16384个槽没全被覆盖，整个集群就全部停止服务，所以一定要改为no
+
+tcp-keepalive 40  
+#检测挂掉的连接,单位s,0禁止
+
+loglevel notice  
+#日志的等级,debug,verbose,notice,warning
+
+save 900 1
+#900 秒内如果至少有1个key的值变化,则保存
+save 300 10
+#300 秒内如果至少有10个key的值变化,则保存
+save 60 10000
+#60 秒内如果至少有10000个key的值变化,则保存
+#rdb dump策略
+
+stop-writes-on-bgsave-error yes
+#默认,redis最后一次后台保存失败之时,将不再接受写入操作,如此则强硬告知用户redis落盘(持久化)出轨,否则无人感知到失败.
+#如果后台保存进程重新启动工作了,redis也将自动的允许写操作(序列化的时候是否停止写操作)
+
+rdbcompression yes
+#存数据到rdb文件时是否进行压缩,默认是'yes',压缩可减少I/O,压缩需要消耗cpu资源.
+
+rdbchecksum yes
+#是否校验rdb文件
+
+maxclients 10000
+#最大链接数
+#达到最大限制,redis将关闭所有的新连接,并发送一个‘max number of clients reached’的错误
+
+maxmemory 1024m 
+#最大可用内存  
+
+## volatile-lru -> remove the key with an expire set using an LRU algorithm  
+## volatile-lru -> 使用 LRU 算法移除包含过期设置的 key
+## allkeys-lru -> remove any key accordingly to the LRU algorithm  
+## allkeys-lru -> 根据 LRU 算法移除所有的 key
+## volatile-random -> remove a random key with an expire set  
+## volatile-random -> 在设置了过期时间的键空间中，随机移除某个key  
+## allkeys-random -> remove a random key, any key  
+## allkeys-random -> 在主键空间中，随机移除某个key  
+## volatile-ttl -> remove the key with the nearest expire time (minor TTL)  
+## volatile-ttl -> 在设置了过期时间的键空间中，具有更早过期时间的key优先移除
+## noeviction -> don't expire at all, just return an error on write operations  
+## noeviction -> 不让任何 key 过期，只是给写入操作返回一个错误
+maxmemory-policy volatile-lru
+#最大内存策略 
+
+dir /redis-data/${PORT}  
+#work目录
+
+slave-serve-stale-data yes  
+#当slave与master失联,或复制正在进行时，
+#slave 可能会有两种表现：
+#一,如设置为yes,slave 仍会处理客户端请求,但返回数据可能是过时,或者数据可能是空的(在第一次同步时)
+#二.如设置为no,除info he salveof之外的其他命令,slave 都将返回 "SYNC with master in progress" 错误，
+#默认值yes
+
+repl-ping-slave-period 10
+#Slaves 在一个预定义的时间间隔内发送 ping 命令到 server.时间间隔自定义,默认为 10 秒。
+
+repl-timeout 60
+#主从复制过期时间,值一定要比 repl-ping-slave-period 大,默认60s
+
+repl-disable-tcp-nodelay no
+#在slave和master同步后（发送psync/sync），后续的同步是否设置成TCP_NODELAY
+#设置成yes，则redis会合并小的TCP包从而节省带宽，但会增加同步延迟（40ms），造成master与slave数据不一致
+#设置成no，则redis master会立即发送同步数据，没有延迟
+#前者关注性能，后者关注一致性
+#默认yes
+
+repl-backlog-size 1mb
+#设置主从复制容量大小。这个 backlog 是一个用来在 slaves 被断开连接时
+#存放 slave 数据的 buffer，所以当一个 slave 想要重新连接，通常不希望全部重新同步，
+#只是部分同步就够了，仅仅传递 slave 在断开连接时丢失的这部分数据
+#这个值越大，salve 可以断开连接的时间就越长
+#默认值 1048576 kb
+
+
+repl-backlog-ttl 3600
+#master没有slave一段时间会释放复制缓冲区的内存，repl-backlog-ttl用来设置该时间长度。单位为秒
+#如果设置为 0 ，意味着绝不释放 backlog,默认值 3600s
+
+slave-read-only yes  
+#slave只读,2.6之后,slave均默认为只读  
+
+slave-priority 100  
+#当 master 不能正常工作的时候，Redis Sentinel 会从 slaves 中选出一个新的 master，
+#这个值越小，就越会被优先选中，但是如果是 0 ， 那是意味着这个 slave 不可能被选中
+#默认优先级为 100
+
+appendonly yes 
+#aof持久化 yes打开 no关闭 
+#设置appendfsync为no,Redis不会主动调用fsync去将AOF日志内容同步到磁盘,
+#完全依赖于操作系统的调试.对大多数Linux系统,是每30秒进行一次fsync,将缓冲区中的数据写到磁盘上.
+
+#只增文件的文件名称.（默认是appendonly.aof）  
+#appendfilename appendonly.aof 
+
+appendfsync everysec  
+#每秒一次aof写  
+#no:不调用，只等待操作系统来清空缓冲区当操作系统要输出数据时。很快。  
+#always: 每次更新数据都写入仅增日志文件。慢，但是最安全。  
+#everysec: 每秒调用一次。折中。
+
+auto-aof-rewrite-min-size 64mb  
+
+no-appendfsync-on-rewrite yes  
+#关闭在aof rewrite的时候对新的写操作进行fsync  
+
+repl-diskless-sync no
+##是否使用socket方式复制数据。目前redis复制提供两种方式，disk和socket。
+#如果新的slave连上来或者重连的slave无法部分同步，就会执行全量同步，master会生成rdb文件。
+#有2种方式：
+#disk方式是master创建一个新的进程把rdb文件保存到磁盘，再把磁盘上的rdb文件传递给slave。
+#socket是master创建一个新的进程，直接把rdb文件以socket的方式发给slave。
+#disk方式的时候，当一个rdb保存的过程中，多个slave都能共享这个rdb文件。
+#socket的方式就的一个个slave顺序复制。在磁盘速度缓慢，网速快的情况下推荐用socket方式
+#默认值no
+
+repl-diskless-sync-delay 5
+##diskless复制的延迟时间，防止设置为0。一旦复制开始，节点不会再接收新slave的复制请求直到下一个rdb传输。
+#所以最好等待一段时间，等更多的slave连上来
+
+#min-slaves-to-write 1
+#redis提供了可以让master停止写入的方式，如果配置了min-slaves-to-write，健康的slave的个数小于N，mater就禁止写入。
+#master最少得有多少个健康的slave存活才能执行写命令。
+#这个配置虽然不能保证N个slave都一定能接收到master的写操作，但是能避免没有足够健康的slave的时候，master不能写入来避免数据丢失。
+#默认设置为0是关闭该功能。
+
+lua-time-limit 5000  
+
+cluster-enabled yes  
+#打开redis集群  
+
+cluster-node-timeout 15000  
+#节点互连超时的阀值  
+
+cluster-migration-barrier 1  
+slowlog-log-slower-than 10000  
+slowlog-max-len 128  
+notify-keyspace-events ""  
+hash-max-ziplist-entries 512  
+hash-max-ziplist-value 64  
+list-max-ziplist-entries 512  
+list-max-ziplist-value 64  
+set-max-intset-entries 512  
+zset-max-ziplist-entries 128  
+zset-max-ziplist-value 64  
+activerehashing yes  
+client-output-buffer-limit normal 0 0 0  
+client-output-buffer-limit slave 256mb 64mb 60  
+client-output-buffer-limit pubsub 32mb 8mb 60  
+hz 10  
+aof-rewrite-incremental-fsync yes 
+
+#监听tcp端口
+port ${PORT}
+
+#aof存储文件
+#appendfilename "appendonly-${PORT}.aof"
+
+#rdb文件,只用于动态添加slave过程
+dbfilename dump-${PORT}.rdb
+
+#log文件
+#logfile "/usr/local/yunji/redis/logs/redis-${PORT}.log"
+
+#cluster配置文件(启动自动生成)
+cluster-config-file nodes-${PORT}.conf
+
+#当前写入日志文件的大小占到初始日志文件大小的某个百分比时触发Rewrite
+#部署在同一机器的redis实例，把auto-aof-rewrite搓开，防止瞬间fork所有redis进程做rewrite,占用大量内存
+auto-aof-rewrite-percentage 80
