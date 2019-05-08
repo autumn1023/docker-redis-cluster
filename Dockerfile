@@ -8,8 +8,8 @@ ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install system dependencies
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -yqq net-tools supervisor ruby rubygems locales gettext-base wget vim   mlocate  tzdata curl 
+RUN apt-get update -qq \
+  && apt-get install --no-install-recommends -yqq net-tools supervisor ruby rubygems locales gettext-base wget vim   mlocate  tzdata curl \ 
   && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && apt-get clean -yqq \
   &&localedef -i en_US -f UTF-8 en_US.UTF-8 
