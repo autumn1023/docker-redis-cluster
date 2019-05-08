@@ -51,14 +51,16 @@ if [ "$1" = 'redis-cluster' ]; then
     IP=$(echo ${IP}) # trim whitespaces
 
     /redis/src/redis-cli --version | grep -E "redis-cli 3.0|redis-cli 3.2|redis-cli 4.0"
-
+    
     if [ $? -eq 0 ]
     then
       echo "Using old redis-trib.rb to create the cluster"
-      echo "yes" | ruby /redis/src/redis-trib.rb create --replicas 1 ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005
+      #echo "yes" | ruby /redis/src/redis-trib.rb create --replicas 1 ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005
+      echo "yes" | ruby /redis/src/redis-trib.rb create --replicas 1 ${REDIS_SERVICE_NAME}:7000 ${REDIS_SERVICE_NAME}:7001 ${REDIS_SERVICE_NAME}:7002 ${REDIS_SERVICE_NAME}:7003 ${REDIS_SERVICE_NAME}:7004 ${REDIS_SERVICE_NAME}:7005
     else
       echo "Using redis-cli to create the cluster"
-      echo "yes" | /redis/src/redis-cli --cluster create --cluster-replicas 1 ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005
+      #echo "yes" | /redis/src/redis-cli --cluster create --cluster-replicas 1 ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005
+      echo "yes" | /redis/src/redis-cli --cluster create --cluster-replicas 1 ${REDIS_SERVICE_NAME}:7000 ${REDIS_SERVICE_NAME}:7001 ${REDIS_SERVICE_NAME}:7002 ${REDIS_SERVICE_NAME}:7003 ${REDIS_SERVICE_NAME}:7004 ${REDIS_SERVICE_NAME}:7005
     fi
 
     if [ "$SENTINEL" = "true" ]; then
