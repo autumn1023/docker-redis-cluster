@@ -24,8 +24,8 @@ ENV SSL_CERT_FILE=/usr/local/etc/openssl/cert.pem
 RUN gem install redis -v 3.0.7
 
 RUN apt-get update \
-   && apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby  wget vim mlocate procps  tzdata curl wget vim mlocate  dnsutils tzdata curl
-   && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+   && apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby  wget vim mlocate procps  tzdata curl wget vim mlocate  dnsutils tzdata curl \
+   && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
 #ARG redis_version=5.0.4
 ARG redis_version=3.0.7
 
