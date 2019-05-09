@@ -9,10 +9,9 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install system dependencies
 RUN apt-get update -qq \
-  && apt-get install --no-install-recommends -yqq net-tools supervisor ruby rubygems locales gettext-base wget vim mlocate  tzdata curl \ 
-  && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+  && apt-get install --no-install-recommends -yqq net-tools supervisor ruby rubygems locales gettext-base  \ 
   && apt-get clean -yqq \
-  && localedef -i en_US -f UTF-8 en_US.UTF-8 
+ 
   
 # # Ensure UTF-8 lang and locale
 RUN locale-gen en_US.UTF-8
@@ -24,8 +23,9 @@ ENV SSL_CERT_FILE=/usr/local/etc/openssl/cert.pem
 
 RUN gem install redis -v 3.0.7
 
-RUN apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby
-
+RUN apt-get update \
+   && apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby  wget vim mlocate procps  tzdata curl wget vim mlocate  dnsutils tzdata curl
+   && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
 #ARG redis_version=5.0.4
 ARG redis_version=3.0.7
 
